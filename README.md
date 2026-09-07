@@ -10,7 +10,7 @@ Docker 기초는 [Docker-study](https://github.com/hyunbin0407/Docker-study) 저
 
 | 회차 | 주제 | 상태 | 링크 |
 |---|---|---|---|
-| 1 | CI/CD란 무엇인가 (개념 이해) | ⬜ 예정 | - |
+| 1 | CI/CD란 무엇인가 (개념 이해) | ✅ 완료 | [01-what-is-cicd](./01-what-is-cicd/README.md) |
 | 2 | 첫 워크플로우 작성해보기 (GitHub Actions 문법) | ⬜ 예정 | - |
 | 3 | 코드 자동 테스트하기 (CI의 핵심) | ⬜ 예정 | - |
 | 4 | Docker 이미지 자동 빌드하기 | ⬜ 예정 | - |
