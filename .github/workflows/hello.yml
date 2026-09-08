@@ -1,11 +1,15 @@
 name: My First Workflow
 
 on:
-  workflow_dispatch:        # Actions 탭 / gh 명령으로 수동 실행
+  workflow_dispatch:
+  push:
+    paths:                              # 이 경로가 바뀐 커밋에서만 실행
+      - "02-first-workflow/**"
+      - ".github/workflows/hello.yml"
 
 jobs:
   hello:
-    runs-on: ubuntu-latest  # 이 job이 도는 러너(가상 머신)
+    runs-on: ubuntu-latest
     steps:
       - name: 인사 출력
         run: echo "첫 번째 워크플로우 실행됨"
