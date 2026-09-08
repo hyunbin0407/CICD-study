@@ -19,10 +19,35 @@ Docker 기초는 [Docker-study](https://github.com/hyunbin0407/Docker-study) 저
 | 7 | 실전 프로젝트 (기존 앱에 전체 파이프라인 적용) | ⬜ 예정 | - |
 | 8 | 심화 주제 (캐싱, 매트릭스 빌드, 실패 알림 등) | ⬜ 예정 | - |
 
+## ✅ 진행 현황
+
+### 1회차 — CI/CD란 무엇인가 (완료)
+CI = 자주 통합 + 매번 자동 빌드/테스트, CD = 릴리스/배포 자동화(Delivery는 승인 후, Deployment는 완전 자동).
+파이프라인 흐름 `Source → Build → Test → Package → Publish → Deploy` 정리. → [01-what-is-cicd](./01-what-is-cicd/README.md)
+
+### 2회차 — 첫 워크플로우 작성 (완료)
+`.github/workflows/*.yml` 구조(`name → on → jobs → steps`)를 직접 만들며 학습.
+실습 미션 1~5 + 도전:
+- 미션1 `workflow_dispatch` 수동 실행
+- 미션2 `on: push` + `paths` 필터 (필터 밖 파일은 실행 안 됨 확인)
+- 미션3 `actions/checkout@v4` + `${{ github.* }}` 컨텍스트
+- 미션4 step 실패 → 이후 step skip, job failure
+- 미션5 `needs` 로 job 순서 (기본은 병렬)
+- 도전 `strategy.matrix` 로 job 복제 + YAML 콜론 함정(`run: |` 로 해결)
+
+→ [개념](./02-first-workflow/README.md) · [실습](./02-first-workflow/실습.md) · 실습 결과물: `.github/workflows/hello.yml`
+
+### 3회차 — 코드 자동 테스트 (실습 준비 완료, 진행 예정)
+샘플 앱 `03-auto-test/app/` (Node + Jest, 테스트 10개)과 실습 자료까지 준비됨.
+남은 것: 실습 미션 1~5(로컬 테스트 → CI 붙이기 → 깨뜨리기 → PR 상태체크 → 배지) + 도전(matrix).
+→ [개념](./03-auto-test/README.md) · [실습](./03-auto-test/실습.md)
+
 ## 📝 정리 방식
 각 회차 폴더에는 다음 내용이 포함됩니다.
-- `README.md`: 개념 정리 + 실습 내용 + 배운 점
-- 필요 시 실습에 사용한 워크플로우(`.yml`) 등 첨부
+- `README.md`: 개념 정리 + 배운 점
+- `실습.md`: 명령어 따라하기 미션 (있는 회차만)
+- `solution.yml`: 참고용 정답 워크플로우 (자동 실행 안 됨)
+- 실습 중 만든 실제 워크플로우는 `.github/workflows/` 에 위치
 
 ## 🛠 학습 환경
 - GitHub Actions
