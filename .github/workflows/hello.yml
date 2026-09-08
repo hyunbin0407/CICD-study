@@ -22,3 +22,10 @@ jobs:
 
       - name: 파일 목록
         run: ls -al
+
+  done:
+    runs-on: ubuntu-latest
+    needs: hello                 # hello job이 성공해야 시작
+    steps:
+      - name: 완료 알림
+        run: echo "hello job이 끝나서 done job 실행됨"
