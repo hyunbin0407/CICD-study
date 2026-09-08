@@ -3,7 +3,7 @@ name: My First Workflow
 on:
   workflow_dispatch:
   push:
-    paths:                              # 이 경로가 바뀐 커밋에서만 실행
+    paths:
       - "02-first-workflow/**"
       - ".github/workflows/hello.yml"
 
@@ -11,5 +11,15 @@ jobs:
   hello:
     runs-on: ubuntu-latest
     steps:
-      - name: 인사 출력
-        run: echo "첫 번째 워크플로우 실행됨"
+      - name: 코드 체크아웃
+        uses: actions/checkout@v4        # 저장소 파일을 러너로 가져옴
+
+      - name: 실행 정보 출력
+        run: |
+          echo "실행한 사람: ${{ github.actor }}"
+          echo "트리거 이벤트: ${{ github.event_name }}"
+          echo "브랜치: ${{ github.ref_name }}"
+          echo "커밋 SHA: ${{ github.sha }}"
+
+      - name: 파일 목록
+        run: ls -al
