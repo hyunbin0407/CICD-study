@@ -1,5 +1,8 @@
-# 2회차 실습용 워크플로우: GitHub Actions 기본 문법 익히기
-name: 02 - Hello Workflow
+# 2회차 실습 "정답" 파일 (참고용)
+# 스스로 실습.md의 미션을 먼저 풀어본 뒤 비교해 보세요.
+# 이 파일은 .github/workflows/ 밖에 있어서 자동 실행되지 않습니다.
+# 직접 돌려보고 싶으면 .github/workflows/hello.yml 로 복사하세요.
+name: 02 - Hello Workflow (solution)
 
 # ── 트리거(on): 이 워크플로우가 언제 실행될지 ──────────────────
 on:

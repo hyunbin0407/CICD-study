@@ -1,7 +1,9 @@
 # 2회차 · 첫 워크플로우 작성해보기 (GitHub Actions 문법)
 
 > 목표: `.github/workflows/`에 YAML 워크플로우를 직접 만들고, **name / on / jobs / steps / uses / run** 구조를 설명할 수 있다.
-> 실습 파일: [`../.github/workflows/02-hello.yml`](../.github/workflows/02-hello.yml)
+>
+> 📌 **직접 해보기: [`실습.md`](./실습.md) 의 미션을 순서대로 진행하세요.**
+> 이 문서는 실습에 필요한 문법 설명입니다. 정답 예시는 [`solution.yml`](./solution.yml).
 
 ---
 
@@ -117,40 +119,27 @@ steps:
 
 ---
 
-## 6. 이번 실습: `02-hello.yml`
+## 6. 실습
 
-전체 파일: [`../.github/workflows/02-hello.yml`](../.github/workflows/02-hello.yml)
+👉 **[`실습.md`](./실습.md) 의 미션 1~5를 순서대로 진행하세요.** 직접 `.github/workflows/hello.yml` 을 만들어 가며 배웁니다.
 
-핵심 포인트:
-- `on.push.paths` + `workflow_dispatch` 두 가지 트리거
-- `env` 로 워크플로우 전역 변수 `GREETING` 정의
-- `greet` job: 체크아웃 → 인사 출력 → 컨텍스트 정보 출력 → 파일 목록
-- `after-greet` job: `needs: greet` 로 **greet 성공 후에만** 실행 (의존 관계 확인용)
+| 미션 | 배우는 것 |
+|---|---|
+| 1 | `name` / `workflow_dispatch` / job 1개 / `run` step → 버튼으로 실행 |
+| 2 | `on: push` + `paths` 필터 → 커밋하면 자동 실행 |
+| 3 | `uses: actions/checkout@v4`, `${{ github.* }}` 컨텍스트 출력 |
+| 4 | step 실패 시 이후 step이 skip 되는 동작 관찰 |
+| 5 | job 2개 + `needs` 로 실행 순서 만들기 |
+| 도전 | `strategy.matrix` 맛보기 (8회차 예고) |
 
-```yaml
-jobs:
-  greet:
-    runs-on: ubuntu-latest
-    steps:
-      - name: 저장소 코드 체크아웃
-        uses: actions/checkout@v4
-      - name: 인사 출력
-        run: echo "$GREETING - 실행한 사람: ${{ github.actor }}"
-      # ... (컨텍스트 출력, 파일 목록)
+막히면 각 미션의 `힌트` 를 펼쳐 보고, 완성한 뒤 [`solution.yml`](./solution.yml) 과 비교하세요.
+(`solution.yml` 은 `.github/workflows/` 밖에 있어 자동 실행되지 않습니다. 돌려보려면 `hello.yml` 로 복사.)
 
-  after-greet:
-    runs-on: ubuntu-latest
-    needs: greet
-    steps:
-      - run: echo "greet job이 성공해서 after-greet job이 실행됨"
-```
-
-### 실행 & 확인 방법
-1. 이 커밋을 `main`에 push (경로 필터에 걸려 자동 실행됨).
-2. GitHub 저장소 → **Actions** 탭 → "02 - Hello Workflow" 선택.
-3. 실행 항목 클릭 → `greet`, `after-greet` job이 그래프로 보임.
-4. 각 step을 펼쳐 로그 확인. `greet` 완료 후 `after-greet` 가 시작되는지 확인.
-5. 수동 실행: Actions 탭 → 워크플로우 선택 → **Run workflow** 버튼.
+### 실행 결과 확인 방법 (공통)
+1. 커밋 & push.
+2. GitHub 저장소 → **Actions** 탭 → 왼쪽에서 워크플로우 이름 선택.
+3. 실행 항목 클릭 → job 그래프 + 각 step 로그 확인.
+4. 수동 실행: 워크플로우 선택 → **Run workflow** 버튼 (`workflow_dispatch` 가 있어야 보임).
 
 ---
 
