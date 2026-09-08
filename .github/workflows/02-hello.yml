@@ -1,0 +1,44 @@
+# 2회차 실습용 워크플로우: GitHub Actions 기본 문법 익히기
+name: 02 - Hello Workflow
+
+# ── 트리거(on): 이 워크플로우가 언제 실행될지 ──────────────────
+on:
+  push:
+    # 아래 경로가 바뀐 커밋이 push 될 때만 실행 (불필요한 실행 방지, 6회차에서 더 다룸)
+    paths:
+      - "02-first-workflow/**"
+      - ".github/workflows/02-hello.yml"
+  workflow_dispatch: # Actions 탭에서 "Run workflow" 버튼으로 수동 실행
+
+# ── 워크플로우 전체에서 쓰는 환경 변수 ───────────────────────
+env:
+  GREETING: "Hello, GitHub Actions"
+
+jobs:
+  # ── job 1: 인사 출력 ──────────────────────────────────────
+  greet:
+    runs-on: ubuntu-latest # 이 job이 돌아갈 러너(가상 머신)
+    steps:
+      - name: 저장소 코드 체크아웃
+        uses: actions/checkout@v4 # 마켓플레이스의 재사용 액션
+
+      - name: 인사 출력
+        run: echo "$GREETING - 실행한 사람: ${{ github.actor }}"
+
+      - name: 컨텍스트 정보 확인
+        run: |
+          echo "이벤트: ${{ github.event_name }}"
+          echo "브랜치: ${{ github.ref_name }}"
+          echo "커밋 SHA: ${{ github.sha }}"
+          echo "러너 OS: ${{ runner.os }}"
+
+      - name: 체크아웃된 파일 목록
+        run: ls -al
+
+  # ── job 2: greet가 성공한 뒤에만 실행 (의존 관계) ──────────
+  after-greet:
+    runs-on: ubuntu-latest
+    needs: greet # greet job이 끝나야 시작
+    steps:
+      - name: 이전 job 완료 확인
+        run: echo "greet job이 성공해서 after-greet job이 실행됨"
