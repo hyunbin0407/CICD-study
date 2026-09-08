@@ -12,14 +12,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 코드 체크아웃
-        uses: actions/checkout@v4        # 저장소 파일을 러너로 가져옴
+        uses: actions/checkout@v4
 
       - name: 실행 정보 출력
         run: |
           echo "실행한 사람: ${{ github.actor }}"
           echo "트리거 이벤트: ${{ github.event_name }}"
           echo "브랜치: ${{ github.ref_name }}"
-          echo "커밋 SHA: ${{ github.sha }}"
+
+      - name: 일부러 실패시키기
+        run: exit 1
 
       - name: 파일 목록
         run: ls -al
