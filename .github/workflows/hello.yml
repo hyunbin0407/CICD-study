@@ -1,0 +1,11 @@
+name: My First Workflow
+
+on:
+  workflow_dispatch:        # Actions 탭 / gh 명령으로 수동 실행
+
+jobs:
+  hello:
+    runs-on: ubuntu-latest  # 이 job이 도는 러너(가상 머신)
+    steps:
+      - name: 인사 출력
+        run: echo "첫 번째 워크플로우 실행됨"
