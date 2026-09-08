@@ -10,22 +10,19 @@ on:
 jobs:
   hello:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [16, 18, 20]        # 이 목록 개수만큼 hello job이 병렬 복제됨
     steps:
       - name: 코드 체크아웃
         uses: actions/checkout@v4
 
-      - name: 실행 정보 출력
-        run: |
-          echo "실행한 사람: ${{ github.actor }}"
-          echo "트리거 이벤트: ${{ github.event_name }}"
-          echo "브랜치: ${{ github.ref_name }}"
-
-      - name: 파일 목록
-        run: ls -al
+      - name: 버전 출력
+        run: echo "이번 복제본의 Node 버전 후보: ${{ matrix.node }}"
 
   done:
     runs-on: ubuntu-latest
-    needs: hello                 # hello job이 성공해야 시작
+    needs: hello                  # hello 의 3개 복제본이 "모두" 끝나야 시작
     steps:
       - name: 완료 알림
-        run: echo "hello job이 끝나서 done job 실행됨"
+        run: echo "hello 3개(16/18/20)가 다 끝나서 done 실행됨"
