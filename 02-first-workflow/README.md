@@ -153,6 +153,7 @@ steps:
 | 다음 job에서 파일이 없음 | job은 러너가 분리됨. `actions/upload/download-artifact` 필요 |
 | `secrets` 값이 빈 문자열 | 저장소에 시크릿 미등록 (5회차) |
 | push 했는데 실행 안 됨 | `paths` 필터에 안 걸리는 파일만 변경함 |
+| `Invalid workflow file` / `error in your yaml syntax` | 한 줄 `run:` 값에 `콜론+공백`(`후보: `)이 들어감 → YAML이 매핑으로 오해. `run: \|` 블록으로 쓰거나 값 전체를 따옴표로 감쌀 것 |
 
 ---
 
@@ -162,6 +163,11 @@ steps:
 - `on` 으로 트리거를 정하고, `jobs` 는 기본 병렬 · `needs` 로 순서 제어.
 - step은 `uses`(재사용 액션) 또는 `run`(셸 명령), 위에서 아래로 순차 실행.
 - 실행 컨텍스트는 `${{ github.* }}`, `${{ runner.* }}` 등으로 접근.
+- (실습 미션4) step에서 `exit 1` 로 실패하면 그 step은 `X`, 이후 step은 `-`(skip), job 전체는 `failure`.
+  단 이미 성공한 액션의 `Post`(뒷정리) 단계는 그대로 실행된다.
+- (실습 미션5) job은 기본 병렬. `needs` 를 건 job은 앞 job이 끝난 뒤에야 `startedAt` 이 찍힌다.
+  `strategy.matrix` 로 job을 복제하면 `needs` 는 복제본 전부가 끝날 때까지 기다린다.
+- (실습 도전) `run:` 한 줄 값에 `콜론+공백` 이 있으면 YAML 파싱 에러. `run: |` 로 해결.
 - 다음 회차(3회차)에서는 이 골격에 **실제 프로젝트의 자동 테스트**를 붙여 CI다운 CI를 만든다.
 
 ---
