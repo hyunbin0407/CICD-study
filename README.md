@@ -28,5 +28,3 @@ Docker 기초는 [Docker-study](https://github.com/hyunbin0407/Docker-study) 저
 - GitHub Actions
 - Docker Hub (계정: gusqls0718)
 - OS: macOS
-
-<!-- paths 필터 테스트 -->
