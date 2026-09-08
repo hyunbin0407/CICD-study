@@ -1,0 +1,12 @@
+{
+  "name": "cicd-study-sample",
+  "version": "1.0.0",
+  "private": true,
+  "description": "3회차 실습용 샘플 앱 (자동 테스트 대상)",
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}

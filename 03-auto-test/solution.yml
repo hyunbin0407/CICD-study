@@ -1,0 +1,40 @@
+# 3회차 실습 "정답" 파일 (참고용)
+# 실습.md 미션을 먼저 풀어본 뒤 비교하세요.
+# 실제로 쓰려면 .github/workflows/03-test.yml 로 만들면 됩니다.
+name: 03 - CI Test
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "03-auto-test/app/**"
+      - ".github/workflows/03-test.yml"
+  pull_request:
+    paths:
+      - "03-auto-test/app/**"
+      - ".github/workflows/03-test.yml"
+
+# run: 스텝은 모두 앱 폴더 안에서 실행 (uses: 스텝에는 영향 없음)
+defaults:
+  run:
+    working-directory: 03-auto-test/app
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Node.js 설치
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: 03-auto-test/app/package-lock.json
+
+      - name: 의존성 설치 (lockfile 그대로)
+        run: npm ci
+
+      - name: 테스트 실행
+        run: npm test
