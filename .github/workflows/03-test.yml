@@ -13,23 +13,26 @@ on:
 
 defaults:
   run:
-    working-directory: 03-auto-test/app   # run: 스텝은 앱 폴더에서 실행
+    working-directory: 03-auto-test/app
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [18, 20, 22]
     steps:
       - name: 코드 체크아웃
         uses: actions/checkout@v4
 
-      - name: Node.js 설치
+      - name: Node.js ${{ matrix.node }} 설치
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ matrix.node }}
           cache: npm
           cache-dependency-path: 03-auto-test/app/package-lock.json
 
-      - name: 의존성 설치 (lockfile 그대로)
+      - name: 의존성 설치
         run: npm ci
 
       - name: 테스트 실행
