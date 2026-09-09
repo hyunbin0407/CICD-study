@@ -115,12 +115,25 @@ README에 현재 CI 상태를 보여주는 이미지:
 
 ## 8. 이번 회차 배운 점
 
-- (여기에 실습하면서 관찰한 것 추가)
 - CI의 핵심은 "합칠 때마다 자동 테스트" → 테스트 실패 = 파이프라인 중단.
 - 표준 순서: `checkout → setup-node(+cache) → npm ci → npm test`.
 - `npm ci` 는 lockfile 그대로 설치 → CI용. `npm install` 은 로컬 개발용.
 - `on: pull_request` + 상태 체크로 "깨진 코드는 머지 못 하게" 만든다.
 - 다음 회차(4회차)에서는 테스트를 통과한 코드로 **Docker 이미지를 자동 빌드**한다.
+
+### 실습하며 관찰한 것
+- (미션1) `npm test` 통과 시 `echo $?` = `0`. 이 종료 코드가 CI 성공/실패 판정의 전부.
+  로컬은 `node_modules` 가 남아 있어 `npm install` 이 `added 1`, CI 러너는 깨끗해서 `npm ci` 가 `added 267`.
+- (미션2) 첫 실행은 `Cache not found` → 끝에 `Cache saved (key: ...lockfile해시...)`.
+  다시 돌리면 `Cache restored` 로 바뀌고 `npm ci` 가 빨라짐.
+- (미션3) 소스 한 줄(`Math.ceil`→`Math.floor`) 바꾸니 로컬에서 통과하던 테스트가 CI에서 즉시 실패.
+  로그에 `Expected: 3334 / Received: 3333` + 실패한 소스 줄 표시 → 버그 위치가 바로 특정됨.
+  `##[error]Process completed with exit code 1` → step 실패 → job 실패. `git revert` 로 초록 복귀.
+- (미션4) `on:` 에 `push` + `pull_request` 를 둘 다 넣어서 PR에 체크가 2개(`test (push)`, `test (pull_request)`).
+  브랜치에 수정 커밋을 push 하면 PR 체크가 **자동으로 다시 실행**됨. PR은 브랜치 최신 상태를 계속 검증.
+- (미션5) 배지 URL 은 `.../workflows/03-test.yml/badge.svg`, main 최신 실행 결과를 SVG로 반환(5분 캐시).
+- (도전) `strategy.matrix.node: [18,20,22]` → `test (18/20/22)` 3개 병렬. `${{ matrix.node }}` 로 step 이름과
+  `node-version` 을 동시에 치환. 총 소요 시간은 가장 느린 복제본 기준.
 
 ---
 
