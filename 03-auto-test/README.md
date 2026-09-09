@@ -1,4 +1,5 @@
 # 3회차 · 코드 자동 테스트하기 (CI의 핵심)
+![CI Test](https://github.com/hyunbin0407/CICD-study/actions/workflows/03-test.yml/badge.svg)
 
 > 목표: push/PR마다 자동으로 테스트가 돌고, **테스트가 깨지면 CI가 빨개져서 머지를 막는** 흐름을 직접 만든다.
 >
