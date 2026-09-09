@@ -29,7 +29,7 @@ function splitBill(total, people) {
   if (!Number.isFinite(total) || total < 0) {
     throw new RangeError("total must be a number >= 0");
   }
-  return Math.ceil(total / people);
+  return Math.floor(total / people);
 }
 
 module.exports = { formatWon, splitBill };
