@@ -30,9 +30,11 @@ jobs:
           context: ./04-docker-build/app
           push: false
           load: true
-          tags: |
-            cicd-study-sample:latest
-            cicd-study-sample:${{ github.sha }}
+          tags: cicd-study-sample:latest
+          # 도전 미션: 커밋과 1:1로 추적하려면 sha 태그도 함께
+          #   tags: |
+          #     cicd-study-sample:latest
+          #     cicd-study-sample:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

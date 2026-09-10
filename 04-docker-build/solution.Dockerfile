@@ -12,5 +12,8 @@ RUN npm ci --omit=dev
 # 2) 나머지 소스 복사
 COPY . .
 
-# 3) 컨테이너 시작 시 실행할 명령 (docker run <이미지> 30000 4 로 인자 덮어쓰기 가능)
-CMD ["node", "src/index.js"]
+# 3) 항상 실행되는 부분(ENTRYPOINT) + 기본 인자(CMD)를 분리
+#    docker run <이미지>          → node src/index.js 30000 4
+#    docker run <이미지> 17000 3  → node src/index.js 17000 3  (CMD만 교체, ENTRYPOINT는 유지)
+ENTRYPOINT ["node", "src/index.js"]
+CMD ["30000", "4"]

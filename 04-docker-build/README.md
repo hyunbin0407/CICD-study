@@ -45,7 +45,8 @@ COPY package.json package-lock.json ./
 RUN npm ci --omit=dev      # ③ 의존성만 먼저 설치 (dev 도구 제외)
 
 COPY . .                   # ④ 나머지 소스 복사
-CMD ["node", "src/index.js"]   # ⑤ 컨테이너가 뜰 때 실행할 명령
+ENTRYPOINT ["node", "src/index.js"]   # ⑤ 컨테이너가 뜰 때 항상 실행되는 부분
+CMD ["30000", "4"]                     # ⑥ 기본 인자 (docker run 인자로 교체 가능)
 ```
 
 | 명령 | 하는 일 | 메모 |
@@ -54,9 +55,15 @@ CMD ["node", "src/index.js"]   # ⑤ 컨테이너가 뜰 때 실행할 명령
 | `WORKDIR` | 작업 디렉터리 지정 (+ 없으면 생성) | `RUN cd /app` 보다 이걸로 |
 | `COPY <src> <dst>` | 빌드 컨텍스트의 파일을 이미지로 | `src` 는 빌드 컨텍스트 기준 상대경로 |
 | `RUN` | **빌드 시점**에 실행하고 결과를 레이어로 저장 | 여기서 의존성 설치 |
-| `CMD` | **실행 시점**(`docker run`)의 기본 명령 | 빌드 때는 안 돌아감. `docker run 이미지 arg` 로 인자 덮어씀 |
+| `ENTRYPOINT` | **실행 시점**에 항상 돌아가는 명령 | `docker run 이미지 arg` 를 줘도 안 바뀜 |
+| `CMD` | `ENTRYPOINT` 에 붙는 **기본 인자** (ENTRYPOINT 없으면 그 자체가 기본 명령) | `docker run 이미지 arg` 를 주면 이 부분만 통째로 교체 |
 
-> `RUN` = 이미지 만들 때 / `CMD` = 컨테이너 띄울 때. 이 둘을 헷갈리면 "빌드는 됐는데 실행이 안 된다"가 된다.
+> `RUN` = 이미지 만들 때 / `ENTRYPOINT`+`CMD` = 컨테이너 띄울 때. 이 둘을 헷갈리면 "빌드는 됐는데 실행이 안 된다"가 된다.
+>
+> **함정:** `CMD ["node","src/index.js"]` 한 줄만 두고 `docker run 이미지 17000 3` 을 하면,
+> `17000 3` 이 그 줄을 **통째로 교체**해서 `src/index.js` 가 사라진다. Node 베이스 이미지의 기본
+> 엔트리포인트가 앞에 `node` 를 붙여 `node 17000 3` 을 실행 → `Cannot find module '/app/17000'`.
+> → 실행할 스크립트는 `ENTRYPOINT` 로 고정하고, 바뀔 수 있는 값만 `CMD` 로 둔다.
 
 ---
 
@@ -203,13 +210,15 @@ Dockerfile
 | `push: true` 인데 `denied` | 4회차엔 push 하면 안 됨. 자격증명은 5회차 |
 | `node:latest` 썼더니 어제 되던 게 오늘 깨짐 | 베이스 태그 미고정 |
 | 컨텍스트 업로드가 수십 초 | `node_modules` / `.git` 를 `.dockerignore` 안 함 |
+| `docker run 이미지 인자` 했더니 `Cannot find module '/app/인자'` | 실행 스크립트를 `CMD` 로만 둠 → 인자가 그 줄을 통째로 교체. `ENTRYPOINT` 로 고정 (3절 함정) |
 
 ---
 
 ## 12. 이번 회차 배운 점
 
 - 테스트 통과 다음 단계는 **이미지 빌드** — 소스+런타임+의존성을 한 덩어리로 고정한 배포 산출물.
-- Dockerfile: `FROM → WORKDIR → COPY 의존성 → RUN 설치 → COPY 소스 → CMD`.
+- Dockerfile: `FROM → WORKDIR → COPY 의존성 → RUN 설치 → COPY 소스 → ENTRYPOINT + CMD`.
+- 실행할 스크립트는 `ENTRYPOINT` 로 고정, 바뀔 인자만 `CMD` 로 → `docker run 이미지 인자` 가 인자만 갈아끼운다.
 - **레이어 캐시**: 자주 바뀌는 걸 아래로. `package*.json` 먼저 복사해서 `npm ci` 레이어를 지킨다.
 - `.dockerignore` 로 `node_modules`·`.git` 를 컨텍스트에서 뺀다.
 - CI에서는 `docker/setup-buildx-action` + `docker/build-push-action` 사용, 4회차는 `push: false` + `load: true`.
@@ -218,13 +227,25 @@ Dockerfile
 - 다음(5회차)은 이 이미지에 **Docker Hub 자격증명(Secrets)** 을 붙여 `push: true` 로 올린다.
 
 ### 실습하며 관찰한 것
-- (미션1)
-- (미션2)
-- (미션3)
-- (미션4)
-- (미션5)
-- (미션6)
-- (도전)
+- (미션1) 첫 `docker build` 16.2s 중 대부분이 `node:20-slim` 받는 시간(`load metadata` 7.2s + FROM 레이어 7.1s).
+  `CMD ["node","src/index.js"]` 한 줄로 두고 `docker run 이미지 17000 3` 하니 `17000 3` 이 CMD를 통째로 교체 →
+  베이스가 `node 17000 3` 실행 → `Cannot find module '/app/17000'`. `ENTRYPOINT ["node","src/index.js"]` +
+  `CMD ["30000","4"]` 로 분리하니 `docker run 이미지 17000 3` = `node src/index.js 17000 3` 로 동작.
+- (미션2) `.dockerignore` 추가 후 빌드 컨텍스트 `22.78MB → 196B`(node_modules·.git·Dockerfile 제외).
+  소스 한 줄만 바꿔도 `[4/5] RUN npm ci` 는 `CACHED`, `[5/5] COPY . .` 부터만 재실행 → "자주 바뀌는 걸 아래로" 확인.
+  로컬에서 컨텍스트가 작아 보이는 건 BuildKit 증분 전송 착시 — CI 러너는 매번 새 VM이라 `.dockerignore` 가 진짜 효과.
+- (미션3) 러너에서 `setup-buildx-action` 이 `driver: docker-container` 빌더 생성 → 빌드 결과가 데몬 밖에 있어
+  `load: true` 로 tarball 만들어 `importing to docker` 해야 다음 step 의 `docker run` 이 됨.
+  CI 컨텍스트 전송은 `134.85kB`(로컬 196B와 달리 증분 캐시 없음), 베이스 이미지도 매번 새로 pull. `push` 로그 없음.
+- (미션4) 스모크 테스트 step: `docker run ... | tee out.txt` 로 출력 보이고 `grep "1인당" out.txt` 로 검증.
+  `bash -e` 라 grep 이 매칭 실패(exit 1)하면 step 실패 = "빌드된 이미지가 실제로 도는지" 확인.
+- (미션5) `COPY . .` → `COPY nope.txt ./` 로 바꾸니 `이미지 빌드` step 실패
+  (`ERROR: failed to compute cache key: "/nope.txt": not found`, `10 | >>> COPY nope.txt ./` 로 줄까지 표시).
+  뒤 `스모크 테스트` step 은 `skipped`, job `failure`. `git revert` 로 초록 복귀.
+- (미션6) `cache-from/to: type=gha` 추가. 1회차: 캐시 없음 → 전부 빌드 후 `#14` 에서 레이어를 gha로 export(9.1s),
+  빌드 step ~17s. 2회차(새 러너): `importing cache manifest from gha` → `RUN npm ci`·`COPY . .` 까지 전부 `CACHED`,
+  빌드 step ~6s. `mode=max` 라서 중간 레이어까지 캐시됨.
+- (도전) 건너뜀.
 
 ---
 
