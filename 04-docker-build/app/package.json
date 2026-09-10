@@ -1,0 +1,13 @@
+{
+  "name": "cicd-study-docker-sample",
+  "version": "1.0.0",
+  "private": true,
+  "description": "4회차 실습용 앱 (Docker 이미지 빌드 대상)",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
