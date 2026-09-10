@@ -28,3 +28,8 @@ jobs:
           push: false
           load: true
           tags: cicd-study-sample:latest
+
+      - name: 스모크 테스트 (컨테이너 실행)
+        run: |
+          docker run --rm cicd-study-sample:latest 30000 4 | tee out.txt
+          grep "1인당" out.txt
