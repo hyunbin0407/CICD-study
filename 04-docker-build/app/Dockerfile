@@ -7,7 +7,7 @@ COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
 
 # 나머지 소스 복사
-COPY nope.txt ./
+COPY . .
 
 # 항상 실행되는 부분(ENTRYPOINT) + 기본 인자(CMD) 분리
 ENTRYPOINT ["node", "src/index.js"]
