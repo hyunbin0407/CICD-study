@@ -28,6 +28,8 @@ jobs:
           push: false
           load: true
           tags: cicd-study-sample:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: 스모크 테스트 (컨테이너 실행)
         run: |
