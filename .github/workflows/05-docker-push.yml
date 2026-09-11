@@ -20,6 +20,9 @@ jobs:
       - name: 코드 체크아웃
         uses: actions/checkout@v4
 
+      - name: QEMU 설정 (멀티 아키텍처 빌드용)
+        uses: docker/setup-qemu-action@v3
+
       - name: Buildx 준비
         uses: docker/setup-buildx-action@v3
 
@@ -34,6 +37,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./04-docker-build/app
+          platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
             docker.io/${{ vars.DOCKERHUB_USERNAME }}/cicd-study-sample:latest
