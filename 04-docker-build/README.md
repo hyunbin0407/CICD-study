@@ -257,3 +257,5 @@ Dockerfile
 - `.dockerignore`: https://docs.docker.com/build/concepts/context/#dockerignore-files
 - Dockerfile 레퍼런스: https://docs.docker.com/reference/dockerfile/
 - Node 공식 이미지: https://hub.docker.com/_/node
+
+[![Docker Hub](https://img.shields.io/badge/Docker%20Hub-gusqls0718%2Fcicd--study--sample-2496ED?logo=docker&logoColor=white)](https://hub.docker.com/r/gusqls0718/cicd-study-sample)
