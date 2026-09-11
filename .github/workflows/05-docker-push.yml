@@ -17,10 +17,6 @@ jobs:
   docker-push:
     runs-on: ubuntu-latest
     steps:
-      - name: (실험) Secret이 로그에서 마스킹되는지 확인
-        run: |
-          echo "토큰 값: ${{ secrets.DOCKERHUB_TOKEN }}"
-
       - name: 코드 체크아웃
         uses: actions/checkout@v4
 
