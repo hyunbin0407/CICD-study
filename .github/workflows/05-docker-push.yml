@@ -40,3 +40,10 @@ jobs:
             docker.io/${{ vars.DOCKERHUB_USERNAME }}/cicd-study-sample:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: push된 이미지 pull 검증 (PR에는 안 함)
+        if: github.event_name != 'pull_request'
+        run: |
+          docker pull docker.io/${{ vars.DOCKERHUB_USERNAME }}/cicd-study-sample:latest
+          docker run --rm docker.io/${{ vars.DOCKERHUB_USERNAME }}/cicd-study-sample:latest 30000 4 | tee out.txt
+          grep "1인당" out.txt
