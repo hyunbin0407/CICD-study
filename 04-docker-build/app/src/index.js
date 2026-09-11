@@ -8,7 +8,7 @@ const people = Number(process.argv[3] ?? 4);
 
 const each = splitBill(total, people);
 
-console.log("=== 더치페이 계산기 (Docker) ===");
+console.log("=== 더치페이 계산기 (PR 테스트) (Docker) ===");
 console.log(`총액   : ${formatWon(total)}`);
 console.log(`인원   : ${people}명`);
 console.log(`1인당  : ${formatWon(each)}`);
