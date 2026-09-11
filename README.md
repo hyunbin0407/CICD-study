@@ -14,7 +14,7 @@ Docker 기초는 [Docker-study](https://github.com/hyunbin0407/Docker-study) 저
 | 2 | 첫 워크플로우 작성해보기 (GitHub Actions 문법) | ✅ 완료 | [02-first-workflow](./02-first-workflow/README.md) · [실습](./02-first-workflow/실습.md) |
 | 3 | 코드 자동 테스트하기 (CI의 핵심) | ✅ 완료 | [03-auto-test](./03-auto-test/README.md) · [실습](./03-auto-test/실습.md) |
 | 4 | Docker 이미지 자동 빌드하기 | ✅ 완료 | [04-docker-build](./04-docker-build/README.md) · [실습](./04-docker-build/실습.md) |
-| 5 | Docker Hub에 자동 push하기 (Secrets 다루기) | ⬜ 예정 | - |
+| 5 | Docker Hub에 자동 push하기 (Secrets 다루기) | ✅ 완료 | [05-docker-push](./05-docker-push/README.md) · [실습](./05-docker-push/실습.md) |
 | 6 | 트리거 조건 다루기 (브랜치별로 다르게 동작시키기) | ⬜ 예정 | - |
 | 7 | 실전 프로젝트 (기존 앱에 전체 파이프라인 적용) | ⬜ 예정 | - |
 | 8 | 심화 주제 (캐싱, 매트릭스 빌드, 실패 알림 등) | ⬜ 예정 | - |
@@ -61,6 +61,20 @@ CI = 자주 통합 + 매번 자동 빌드/테스트, CD = 릴리스/배포 자�
 - 미션6 `cache-from/to: type=gha` → 2회차 실행에서 레이어 전부 `CACHED`, 빌드 ~17s→~6s
 
 → [개념](./04-docker-build/README.md) · [실습](./04-docker-build/실습.md) · 실습 결과물: `.github/workflows/04-docker.yml`
+
+### 5회차 — Docker Hub 자동 push (완료)
+새 앱 없이 4회차 앱을 그대로 push 대상으로 사용. 자격증명은 GitHub Actions **Secrets/Variables**로 분리.
+실습 미션 1~5 + 3-보강 (도전 포함):
+- 미션1 최소 워크플로우로 `docker/login-action` 만 검증 (`vars.DOCKERHUB_USERNAME` / `secrets.DOCKERHUB_TOKEN`)
+- 미션2 `docker.io/사용자명/저장소:태그` 형식으로 빌드+push (`push: true`, 저장소는 첫 push에 자동 생성)
+- 미션3 push된 이미지를 `docker pull` 로 재검증 (CI + 로컬)
+- 미션3-보강 로컬(Apple Silicon/arm64)에서 pull 실패(`no matching manifest`) → CI 러너(amd64)와 아키텍처 불일치가 원인 →
+  `docker/setup-qemu-action` + `platforms: linux/amd64,linux/arm64` 로 멀티 아키텍처 빌드
+- 미션4 Secret 마스킹 확인(`echo`→`***`). 도중 `run:` 한 줄에 콜론+공백 넣어 YAML 파싱 실패(2회차와 동일 함정) 겪고 `run: |` 로 수정
+- 미션5 `if: github.event_name != 'pull_request'` 로 PR에는 로그인/push가 `skipped` 됨을 실제 PR로 확인
+- 도전 Docker Hub 링크 배지 추가
+
+→ [개념](./05-docker-push/README.md) · [실습](./05-docker-push/실습.md) · 실습 결과물: `.github/workflows/05-docker-push.yml`
 
 ## 📝 정리 방식
 각 회차 폴더에는 다음 내용이 포함됩니다.
