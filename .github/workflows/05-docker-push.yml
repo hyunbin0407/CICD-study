@@ -1,0 +1,14 @@
+name: 05 - Docker Push
+
+on:
+  workflow_dispatch:
+
+jobs:
+  login-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Docker Hub 로그인 테스트
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
