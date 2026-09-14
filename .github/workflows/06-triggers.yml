@@ -29,3 +29,17 @@ jobs:
 
       - name: 테스트 실행
         run: npm test
+
+  deploy-simulate:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: prod 배포 (main push)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          echo "🚀 prod 배포! (ref=${{ github.ref }})"
+
+      - name: staging 배포 (develop push)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+        run: |
+          echo "🧪 staging 배포! (ref=${{ github.ref }})"
