@@ -15,7 +15,7 @@ Docker 기초는 [Docker-study](https://github.com/hyunbin0407/Docker-study) 저
 | 3 | 코드 자동 테스트하기 (CI의 핵심) | ✅ 완료 | [03-auto-test](./03-auto-test/README.md) · [실습](./03-auto-test/실습.md) |
 | 4 | Docker 이미지 자동 빌드하기 | ✅ 완료 | [04-docker-build](./04-docker-build/README.md) · [실습](./04-docker-build/실습.md) |
 | 5 | Docker Hub에 자동 push하기 (Secrets 다루기) | ✅ 완료 | [05-docker-push](./05-docker-push/README.md) · [실습](./05-docker-push/실습.md) |
-| 6 | 트리거 조건 다루기 (브랜치별로 다르게 동작시키기) | 🔨 실습 중 | [06-triggers](./06-triggers/README.md) · [실습](./06-triggers/실습.md) |
+| 6 | 트리거 조건 다루기 (브랜치별로 다르게 동작시키기) | ✅ 완료 | [06-triggers](./06-triggers/README.md) · [실습](./06-triggers/실습.md) |
 | 7 | 실전 프로젝트 (기존 앱에 전체 파이프라인 적용) | ⬜ 예정 | - |
 | 8 | 심화 주제 (캐싱, 매트릭스 빌드, 실패 알림 등) | ⬜ 예정 | - |
 
@@ -75,6 +75,19 @@ CI = 자주 통합 + 매번 자동 빌드/테스트, CD = 릴리스/배포 자�
 - 도전 Docker Hub 링크 배지 추가
 
 → [개념](./05-docker-push/README.md) · [실습](./05-docker-push/실습.md) · 실습 결과물: `.github/workflows/05-docker-push.yml`
+
+### 6회차 — 트리거 조건 다루기 (완료)
+새 앱 없이 3회차 앱을 그대로 씀. 하나의 워크플로우가 브랜치/태그/이벤트에 따라 다르게 동작하도록 조건을 쌓아감.
+`develop` 브랜치를 처음 만들어서 브랜치 전략(main=prod, develop=staging, feature/*=테스트만, 태그=릴리스)을 실제로 구현.
+실습 미션 1~5 + 도전:
+- 미션1 `on.push.branches` 필터 — main/develop만 트리거, feature 브랜치 push는 run 자체가 안 생기는 것 확인
+- 미션2 job/step `if:` 조건 — 같은 워크플로우가 main→prod, develop→staging으로 다르게 동작. 도중 `defaults.run.working-directory`를 워크플로우 최상단에 둬서 checkout 없는 job이 깨지는 버그 발견 → job 안으로 옮겨서 수정
+- 미션3 `tags: ["v*"]` 태그 push 트리거 (`startsWith(github.ref, 'refs/tags/')`) — 태그 push도 `event: push`, `ref`만 다름을 확인
+- 미션4 `workflow_dispatch.inputs`(`type: choice`)로 수동 배포 환경 선택 — `event_name`과 `ref`를 같이 체크해야 하는 이유(수동 실행도 ref는 main) 실증
+- 미션5 `pull_request` 트리거 추가 + job 레벨 `if`로 PR엔 `deploy-simulate` job 전체 skip (5회차는 step 하나만 막았었음)
+- 도전 `branches`에 glob 패턴(`release/**`) 추가 — job은 실행되지만 안의 step은 다 skip되는 경우와 미션5의 "job 자체 skip"을 대조
+
+→ [개념](./06-triggers/README.md) · [실습](./06-triggers/실습.md) · 실습 결과물: `.github/workflows/06-triggers.yml`
 
 ## 📝 정리 방식
 각 회차 폴더에는 다음 내용이 포함됩니다.

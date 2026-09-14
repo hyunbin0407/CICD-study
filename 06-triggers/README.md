@@ -221,4 +221,19 @@ PR         → 테스트만, 절대 배포 안 함
 
 ## 이번 회차 배운 점
 
-<!-- 실습 끝나고 직접 채워보세요 -->
+- `branches` 필터 밖의 브랜치로 push하면 워크플로우 run 자체가 안 생긴다 — 실패도 skip도 아니라 아예
+  "일어나지 않은 일"이 된다. (`feature/mission1-test` push → `gh run list`에 아무것도 안 뜸)
+- 같은 워크플로우 파일 하나가 **어느 브랜치/이벤트로 실행됐는지**에 따라 `if:`로 다르게 행동할 수 있다 —
+  main push → prod만 success/staging skipped, develop push → 정반대.
+- 태그 push도 GitHub 입장에선 그냥 `event: push`다. 다른 게 `ref`뿐(`refs/tags/v0.1.0`) — 그래서
+  `startsWith(github.ref, 'refs/tags/v')`로 태그인지 판별했다.
+- `workflow_dispatch`로 main을 대상 삼아 실행해도 `github.ref`는 여전히 `refs/heads/main`이다.
+  `event_name == 'push'`까지 같이 체크 안 하면 "수동 실행했을 뿐인데 prod 배포 조건도 같이 켜지는" 사고가
+  날 수 있다 — 실제로 미션4에서 두 조건을 같이 안 걸었다면 그렇게 됐을 것.
+- job 레벨 `if`와 step 레벨 `if`는 결과가 다르게 보인다: PR에서는 `deploy-simulate` **job 자체**가
+  `skipped`(안의 step 목록조차 없음), `release/1.0`에서는 job은 `success`로 돌되 그 **안의 3개 step이
+  각각** `skipped`. "이 job 자체가 이 상황에 의미 없다"와 "job은 돌아야 하는데 조건에 맞는 게 없다"는
+  다른 상황이라 다르게 표현된다.
+- 실수 하나: `defaults.run.working-directory`를 워크플로우 최상단에 두면 **모든 job**에 적용된다.
+  `deploy-simulate`는 `actions/checkout`을 안 해서 그 폴더가 없는데 거기로 들어가려다
+  `No such file or directory`로 실패했다 → `test` job 안으로 옮겨서 해결.
