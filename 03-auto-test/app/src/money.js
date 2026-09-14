@@ -33,3 +33,4 @@ function splitBill(total, people) {
 }
 
 module.exports = { formatWon, splitBill };
+// 6회차 미션5: PR 트리거 테스트
