@@ -213,6 +213,9 @@ PR         → 테스트만, 절대 배포 안 함
 - `run:` 한 줄에 `단어: ` (콜론+공백)이 들어가면 YAML 파싱 에러 (2, 5회차와 동일 함정) — 이번 회차
   `echo` step도 `run: |` 로 작성.
 - `tags`와 `paths`를 같이 걸면 태그 push가 조용히 안 걸릴 수 있음 (4절 참고).
+- `defaults.run.working-directory`를 워크플로우 최상단에 두면 **모든 job**에 적용된다. checkout을
+  안 하는 job(예: 배포 시뮬레이션 job)까지 그 경로로 들어가려다 `No such file or directory`로 죽는다
+  → job마다 필요한 것만 그 job의 `defaults`로 좁히기.
 
 ---
 
