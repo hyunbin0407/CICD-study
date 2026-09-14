@@ -1,6 +1,16 @@
 name: 06 - Triggers
 
 on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "수동 배포할 환경"
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+        default: dev
   push:
     branches:
       - main
@@ -44,3 +54,8 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
         run: |
           echo "🧪 staging 배포! (ref=${{ github.ref }})"
+
+      - name: 수동 배포 (workflow_dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          echo "👤 수동 배포 - 선택 환경: ${{ inputs.environment }}"
