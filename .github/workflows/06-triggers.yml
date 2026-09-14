@@ -6,13 +6,12 @@ on:
       - main
       - develop
 
-defaults:
-  run:
-    working-directory: 03-auto-test/app
-
 jobs:
   test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: 03-auto-test/app
     steps:
       - name: 코드 체크아웃
         uses: actions/checkout@v4
