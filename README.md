@@ -15,7 +15,7 @@ Docker 기초는 [Docker-study](https://github.com/hyunbin0407/Docker-study) 저
 | 3 | 코드 자동 테스트하기 (CI의 핵심) | ✅ 완료 | [03-auto-test](./03-auto-test/README.md) · [실습](./03-auto-test/실습.md) |
 | 4 | Docker 이미지 자동 빌드하기 | ✅ 완료 | [04-docker-build](./04-docker-build/README.md) · [실습](./04-docker-build/실습.md) |
 | 5 | Docker Hub에 자동 push하기 (Secrets 다루기) | ✅ 완료 | [05-docker-push](./05-docker-push/README.md) · [실습](./05-docker-push/실습.md) |
-| 6 | 트리거 조건 다루기 (브랜치별로 다르게 동작시키기) | ⬜ 예정 | - |
+| 6 | 트리거 조건 다루기 (브랜치별로 다르게 동작시키기) | 🔨 실습 중 | [06-triggers](./06-triggers/README.md) · [실습](./06-triggers/실습.md) |
 | 7 | 실전 프로젝트 (기존 앱에 전체 파이프라인 적용) | ⬜ 예정 | - |
 | 8 | 심화 주제 (캐싱, 매트릭스 빌드, 실패 알림 등) | ⬜ 예정 | - |
 

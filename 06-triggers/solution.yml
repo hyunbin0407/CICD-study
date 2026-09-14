@@ -1,0 +1,73 @@
+# 6회차 실습 "정답" 워크플로우 (참고용)
+# 실습.md 미션을 먼저 풀어본 뒤 비교하세요.
+# 실제로 쓰려면 .github/workflows/06-triggers.yml 로 만들면 됩니다.
+# 앱은 새로 안 만들고 03-auto-test/app 을 그대로 씁니다.
+# paths 필터를 일부러 안 씀 — tags push와 paths 궁합이 안 좋아서 (README 4절 참고)
+name: 06 - Triggers
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "수동 배포할 환경"
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+        default: dev
+  push:
+    branches:
+      - main
+      - develop
+      - "release/**"
+    tags:
+      - "v*"
+  pull_request:
+    branches:
+      - main
+      - develop
+
+defaults:
+  run:
+    working-directory: 03-auto-test/app
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Node.js 설치
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: 03-auto-test/app/package-lock.json
+
+      - name: 의존성 설치
+        run: npm ci
+
+      - name: 테스트 실행
+        run: npm test
+
+  deploy-simulate:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    steps:
+      - name: prod 배포 (main push 또는 태그 push)
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+        run: |
+          echo "🚀 prod 배포! (ref=${{ github.ref }})"
+
+      - name: staging 배포 (develop push)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+        run: |
+          echo "🧪 staging 배포! (ref=${{ github.ref }})"
+
+      - name: 수동 배포 (workflow_dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          echo "👤 수동 배포 - 선택 환경: ${{ inputs.environment }}"
