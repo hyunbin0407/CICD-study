@@ -1,0 +1,47 @@
+name: 07 - Real Pipeline
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: testpassword
+          MYSQL_DATABASE: notesdb
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -ptestpassword"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+    defaults:
+      run:
+        working-directory: 07-real-pipeline/app
+    steps:
+      - name: 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Node.js 설치
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: 07-real-pipeline/app/package-lock.json
+
+      - name: 의존성 설치
+        run: npm ci
+
+      - name: 테스트 실행 (MySQL service container 연결)
+        env:
+          DB_HOST: 127.0.0.1
+          DB_USER: root
+          DB_PASSWORD: testpassword
+          DB_NAME: notesdb
+        run: npm test
