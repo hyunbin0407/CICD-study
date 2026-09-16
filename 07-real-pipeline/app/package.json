@@ -1,0 +1,19 @@
+{
+  "name": "cicd-study-notes-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "7회차 실전 파이프라인용 앱 - Express + MySQL 메모장 (Docker-study 8회차에서 가져옴)",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "jest --runInBand"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "mysql2": "^3.9.7"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
+  }
+}
