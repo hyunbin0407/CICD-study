@@ -135,4 +135,30 @@ on:
 
 ## 이번 회차 배운 점
 
-<!-- 실습 끝나고 직접 채워보세요 -->
+- 테스트가 없던 실제 앱(Express+MySQL)도 `app.js`(라우트)와 `server.js`(기동)를 분리하기만 하면
+  supertest로 테스트할 수 있게 된다 — DB가 필요한 앱이라고 테스트를 포기할 이유가 없다.
+- `jobs.<job>.services`로 job에 MySQL을 붙이면, `--health-cmd`가 있는 한 GitHub이 알아서
+  "준비될 때까지 기다렸다가" step을 시작해준다. 로컬에서 직접 `for ... sleep 2; done`으로 하던 걸
+  CI에선 선언 한 줄로 대체.
+- VM 러너(`runs-on: ubuntu-latest`)에서 service container는 컨테이너 이름이 아니라
+  `127.0.0.1`로 접근한다 — 로그의 `docker create ... --network github_network_...`를 보면
+  분명 별도 네트워크에 떠 있는데도 그렇다는 게 처음엔 헷갈렸다.
+- `needs: test` → `needs: docker-push`로 3개 job을 사슬처럼 엮으면, `gh run watch`에서 정말
+  순서대로(`test` 완료 → `docker-push` 시작 → 완료 → `deploy-simulate` 시작) 실행되는 게 보인다.
+  테스트가 실패하면 뒤 job들은 아예 시작도 안 한다.
+- 5회차(Secrets/Docker push), 6회차(브랜치·태그 조건)에서 만든 패턴을 **그대로 복사해서** 새 앱에
+  적용하는 것만으로 실전 파이프라인이 완성됐다 — 각 회차가 그 자체로 재사용 가능한 부품이었다는 뜻.
+- 태그 push(`v1.0.0`) 하나가 `test → docker-push → deploy-simulate` 전체를 자동으로 이어지게 하는
+  걸 실제로 확인함. CI가 Docker Hub에 올린 이미지를 로컬에서 pull해서 진짜 MySQL과 연결해 CRUD가
+  되는 것까지 재현했다.
+- 중요한 한계: `deploy-simulate`는 이름 그대로 시뮬레이션이다. `echo`로 "배포한다고 가정"할 뿐,
+  실제 서버에 SSH로 접속하거나 `kubectl`로 롤링 업데이트하는 게 아니다. **Docker Hub에 새 이미지가
+  올라가는 것까지는 100% 자동이지만, 그 이미지로 실제로 서비스 중인 서버가 갱신되는 것은 별도의
+  실제 배포 단계(서버 대상 SSH/API 호출 등)가 있어야 한다** — "고치면 다 자동으로 되는 줄" 착각하기
+  쉬운 지점이라 명확히 구분해둔다.
+
+## ⚠️ 참고: `deploy-simulate`는 시뮬레이션이다
+
+이 워크플로우의 `deploy-simulate` job은 실제 서버를 갱신하지 않는다. `echo`로 로그만 남길 뿐이다.
+진짜 배포까지 자동화하려면 실제 서버(또는 Kubernetes, PaaS 등)를 대상으로 한 배포 단계가 필요하며,
+이건 다음 회차 이후 실제 서버가 준비됐을 때 다룰 주제다.

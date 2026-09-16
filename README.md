@@ -16,7 +16,7 @@ Docker 기초는 [Docker-study](https://github.com/hyunbin0407/Docker-study) 저
 | 4 | Docker 이미지 자동 빌드하기 | ✅ 완료 | [04-docker-build](./04-docker-build/README.md) · [실습](./04-docker-build/실습.md) |
 | 5 | Docker Hub에 자동 push하기 (Secrets 다루기) | ✅ 완료 | [05-docker-push](./05-docker-push/README.md) · [실습](./05-docker-push/실습.md) |
 | 6 | 트리거 조건 다루기 (브랜치별로 다르게 동작시키기) | ✅ 완료 | [06-triggers](./06-triggers/README.md) · [실습](./06-triggers/실습.md) |
-| 7 | 실전 프로젝트 (기존 앱에 전체 파이프라인 적용) | 🔨 실습 중 | [07-real-pipeline](./07-real-pipeline/README.md) · [실습](./07-real-pipeline/실습.md) |
+| 7 | 실전 프로젝트 (기존 앱에 전체 파이프라인 적용) | ✅ 완료 | [07-real-pipeline](./07-real-pipeline/README.md) · [실습](./07-real-pipeline/실습.md) |
 | 8 | 심화 주제 (캐싱, 매트릭스 빌드, 실패 알림 등) | ⬜ 예정 | - |
 
 ## ✅ 진행 현황
@@ -88,6 +88,19 @@ CI = 자주 통합 + 매번 자동 빌드/테스트, CD = 릴리스/배포 자�
 - 도전 `branches`에 glob 패턴(`release/**`) 추가 — job은 실행되지만 안의 step은 다 skip되는 경우와 미션5의 "job 자체 skip"을 대조
 
 → [개념](./06-triggers/README.md) · [실습](./06-triggers/실습.md) · 실습 결과물: `.github/workflows/06-triggers.yml`
+
+### 7회차 — 실전 파이프라인 (완료)
+Docker-study 8회차의 실제 Express+MySQL 메모장 앱을 `07-real-pipeline/app/`로 가져와 테스트 가능하게 리팩터링(`src/app.js`+`db.js`+`server.js` 분리, supertest 테스트 추가)하고, 1~6회차 개념을 전부 적용해 `test → docker-push → deploy-simulate` 3단 파이프라인을 완성.
+실습 미션 1~5 + 도전:
+- 미션1 로컬에서 진짜 MySQL 컨테이너에 붙여 `npm test` 통과 확인
+- 미션2 GitHub Actions **service container**(`jobs.<job>.services`)로 MySQL 붙인 테스트 job (신규 개념 — `--health-cmd`로 준비될 때까지 자동 대기, VM 러너에선 `127.0.0.1`로 접근)
+- 미션3 `needs: test`로 Docker 빌드+push job 연결 (5회차 Secrets/Variables 재사용)
+- 미션4 6회차 트리거 패턴(branches/tags/pull_request/workflow_dispatch) 전체 이식, PR에선 이미지 빌드까지만/push는 skip 확인
+- 미션5 `needs: docker-push`로 `deploy-simulate` job 추가해 3단 체인 완성 (main→prod, develop→staging)
+- 도전 `v1.0.0` 태그 push 하나로 3단 전체 자동 실행 + Docker Hub에서 실제 이미지 pull해서 로컬 MySQL과 연결, CRUD 재현
+- `deploy-simulate`는 실제 서버 갱신이 아닌 시뮬레이션(`echo`)이라는 한계를 명확히 정리 — Docker Hub push까지는 완전 자동, 실제 서버 반영은 별도 배포 단계 필요
+
+→ [개념](./07-real-pipeline/README.md) · [실습](./07-real-pipeline/실습.md) · 실습 결과물: `.github/workflows/07-real-pipeline.yml`
 
 ## 📝 정리 방식
 각 회차 폴더에는 다음 내용이 포함됩니다.
