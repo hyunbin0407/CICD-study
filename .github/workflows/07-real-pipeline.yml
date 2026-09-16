@@ -97,3 +97,22 @@ jobs:
             docker.io/${{ vars.DOCKERHUB_USERNAME }}/cicd-study-notes:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  deploy-simulate:
+    needs: docker-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: prod 배포 (main push 또는 태그 push)
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+        run: |
+          echo "🚀 prod 배포! docker.io/${{ vars.DOCKERHUB_USERNAME }}/cicd-study-notes:latest 를 받아서 재기동한다고 가정 (ref=${{ github.ref }})"
+
+      - name: staging 배포 (develop push)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+        run: |
+          echo "🧪 staging 배포! (ref=${{ github.ref }})"
+
+      - name: 수동 배포 (workflow_dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          echo "👤 수동 배포 - 선택 환경: ${{ inputs.environment }}"
