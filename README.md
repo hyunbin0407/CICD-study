@@ -17,7 +17,7 @@ Docker 기초는 [Docker-study](https://github.com/hyunbin0407/Docker-study) 저
 | 5 | Docker Hub에 자동 push하기 (Secrets 다루기) | ✅ 완료 | [05-docker-push](./05-docker-push/README.md) · [실습](./05-docker-push/실습.md) |
 | 6 | 트리거 조건 다루기 (브랜치별로 다르게 동작시키기) | ✅ 완료 | [06-triggers](./06-triggers/README.md) · [실습](./06-triggers/실습.md) |
 | 7 | 실전 프로젝트 (기존 앱에 전체 파이프라인 적용) | ✅ 완료 | [07-real-pipeline](./07-real-pipeline/README.md) · [실습](./07-real-pipeline/실습.md) |
-| 8 | 심화 주제 (캐싱, 매트릭스 빌드, 실패 알림 등) | ⬜ 예정 | - |
+| 8 | 심화 주제 (캐싱, 매트릭스 빌드, 실패 알림 등) | 🔨 실습 중 | [08-advanced](./08-advanced/README.md) · [실습](./08-advanced/실습.md) |
 
 ## ✅ 진행 현황
 

@@ -1,0 +1,68 @@
+name: 08 - Advanced
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        node-version: [18, 20, 22]
+        exclude:
+          - os: macos-latest
+            node-version: 18
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: 03-auto-test/app
+    steps:
+      - name: 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Node.js 설치
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: node_modules 캐시
+        id: cache-node-modules
+        uses: actions/cache@v4
+        with:
+          path: 03-auto-test/app/node_modules
+          key: node-modules-${{ matrix.os }}-${{ matrix.node-version }}-${{ hashFiles('03-auto-test/app/package-lock.json') }}
+          restore-keys: |
+            node-modules-${{ matrix.os }}-${{ matrix.node-version }}-
+
+      - name: 의존성 설치
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: 테스트 실행
+        run: npm test
+
+      - name: 결과 요약 기록
+        if: always()
+        run: |
+          echo "- ${{ matrix.os }} / node ${{ matrix.node-version }}: ${{ job.status }}" >> "$GITHUB_STEP_SUMMARY"
+
+  notify-on-failure:
+    needs: test
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: 실패 이슈 자동 생성
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🚨 CI 실패: ${context.workflow} #${context.runNumber}`,
+              body: `test job이 실패했습니다.\n\n[실행 로그 보기](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`
+            })
