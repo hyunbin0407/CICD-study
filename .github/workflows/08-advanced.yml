@@ -29,10 +29,21 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: npm
-          cache-dependency-path: 03-auto-test/app/package-lock.json
+
+      - name: node_modules 캐시
+        id: cache-node-modules
+        uses: actions/cache@v4
+        with:
+          path: 03-auto-test/app/node_modules
+          key: node-modules-${{ matrix.os }}-${{ matrix.node-version }}-${{ hashFiles('03-auto-test/app/package-lock.json') }}
+          restore-keys: |
+            node-modules-${{ matrix.os }}-${{ matrix.node-version }}-
+
+      - name: 캐시 hit 여부 출력
+        run: echo "cache-hit=${{ steps.cache-node-modules.outputs.cache-hit }}"
 
       - name: 의존성 설치
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: npm ci
 
       - name: 테스트 실행
