@@ -138,6 +138,8 @@ jobs:
     needs: test
     if: failure()
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
     steps:
       - uses: actions/github-script@v7
         with:
@@ -156,8 +158,12 @@ jobs:
 - `actions/github-script`는 워크플로우 안에서 GitHub API를 바로 호출하게 해주는 공식 액션이다.
   `github`는 인증된 Octokit 클라이언트, `context`는 이 실행에 대한 정보(레포, 실행 번호, 이벤트 등)를
   담고 있다.
-- 별도 시크릿이 필요 없다 — 워크플로우에 기본 주어지는 `GITHUB_TOKEN`으로 이슈 생성 정도의 권한은
-  충분하다.
+- **`permissions: issues: write`가 반드시 필요하다.** 최근 GitHub 리포지토리는 `GITHUB_TOKEN`의
+  기본 권한이 읽기 전용이라, 이 설정 없이 `issues.create(...)`를 호출하면 job은 정상적으로
+  실행되지만 API 호출만 `RequestError [HttpError]: Resource not accessible by integration` (403)로
+  거부당한다. job의 `if` 조건이나 트리거 로직은 멀쩡한데 API 호출만 실패하는 형태라 원인 파악이
+  헷갈리기 쉽다 — job 레벨에 `permissions`를 선언하면 **그 job에 한해서만** 필요한 권한을 열 수 있다
+  (다른 job까지 다 열어줄 필요 없음).
 
 > 📌 실전에서는 GitHub 이슈보다 **Slack/Discord 웹훅**으로 알림을 보내는 경우가 더 흔하다
 > (`slackapi/slack-github-action` 같은 액션 사용). 원리는 동일 — `if: failure()` 조건에
@@ -218,6 +224,11 @@ push (main/develop) 또는 수동 실행
   나머지는 `cancelled`다, `failure`가 아니다.
 - `notify-on-failure`에 `if: failure()`만 걸고 `needs`를 안 쓰면, 실패 여부를 판단할 대상이 없어
   조건이 의도대로 동작하지 않는다 — 반드시 `needs: <검사할 job>`과 짝을 이뤄야 한다.
+- `actions/github-script`로 이슈 생성처럼 **쓰기** API를 호출하면서 `permissions: issues: write`를
+  안 넣으면 `RequestError [HttpError]: Resource not accessible by integration` (403)로 실패한다.
+  job 자체는 `success`가 아니라 `failure`로 뜨고, `if: failure()` 로직은 멀쩡히 동작한 것처럼 보여서
+  헷갈리기 쉽다 — 로그에서 `x-accepted-github-permissions` 헤더를 보면 어떤 권한이 필요한지 정확히
+  알려준다.
 - `GITHUB_STEP_SUMMARY`에 쓰는 step에 `if: always()`를 안 붙이면, 테스트가 실패했을 때 그 뒤 step이
   전부 skip되면서 요약도 안 남는다.
 
