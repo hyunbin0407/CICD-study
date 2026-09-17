@@ -17,7 +17,7 @@ Docker 기초는 [Docker-study](https://github.com/hyunbin0407/Docker-study) 저
 | 5 | Docker Hub에 자동 push하기 (Secrets 다루기) | ✅ 완료 | [05-docker-push](./05-docker-push/README.md) · [실습](./05-docker-push/실습.md) |
 | 6 | 트리거 조건 다루기 (브랜치별로 다르게 동작시키기) | ✅ 완료 | [06-triggers](./06-triggers/README.md) · [실습](./06-triggers/실습.md) |
 | 7 | 실전 프로젝트 (기존 앱에 전체 파이프라인 적용) | ✅ 완료 | [07-real-pipeline](./07-real-pipeline/README.md) · [실습](./07-real-pipeline/실습.md) |
-| 8 | 심화 주제 (캐싱, 매트릭스 빌드, 실패 알림 등) | 🔨 실습 중 | [08-advanced](./08-advanced/README.md) · [실습](./08-advanced/실습.md) |
+| 8 | 심화 주제 (캐싱, 매트릭스 빌드, 실패 알림 등) | ✅ 완료 | [08-advanced](./08-advanced/README.md) · [실습](./08-advanced/실습.md) |
 
 ## ✅ 진행 현황
 
@@ -101,6 +101,24 @@ Docker-study 8회차의 실제 Express+MySQL 메모장 앱을 `07-real-pipeline/
 - `deploy-simulate`는 실제 서버 갱신이 아닌 시뮬레이션(`echo`)이라는 한계를 명확히 정리 — Docker Hub push까지는 완전 자동, 실제 서버 반영은 별도 배포 단계 필요
 
 → [개념](./07-real-pipeline/README.md) · [실습](./07-real-pipeline/실습.md) · 실습 결과물: `.github/workflows/07-real-pipeline.yml`
+
+### 8회차 — 심화 주제 (완료)
+새 앱 없이 3회차 앱을 그대로 씀. 지금까지 만든 파이프라인을 더 빠르게(캐싱), 더 넓게(매트릭스),
+더 안전하게(실패 알림) 만드는 실전 패턴을 다룸.
+실습 미션 1~4 + 도전:
+- 미션1 `os × node-version` 다차원 매트릭스 — job 6개 자동 생성, 이름에 매트릭스 값 표시
+- 미션2 `exclude`로 조합 제외 + `fail-fast` 기본 동작(취소) vs `false`(끝까지 실행) 실증. 버그 주입 시
+  가장 먼저 실패한 job이 나머지(같은 OS 포함)를 실제로 `cancelled`시키는 것 확인
+- 미션3 `actions/cache`로 `node_modules` 직접 캐싱 — 캐시 미스 → 히트(`의존성 설치` skip) → 락파일
+  변경 시 `restore-keys` 부분 복원(`cache-hit=false`라 재설치) 3단계를 실제로 재현
+- 미션4 실패 시 `actions/github-script`로 GitHub 이슈 자동 생성. `GITHUB_TOKEN` 기본 권한이
+  읽기 전용이라 첫 시도는 403(`Resource not accessible by integration`)으로 실패 →
+  `permissions: issues: write` 추가 후 이슈(`#5`) 실제 생성 확인. 복구 과정에서 `git revert
+  --no-edit HEAD`를 잘못 써서 버그 대신 권한 수정을 되돌리는 실수도 겪고 커밋 해시를 정확히
+  지정해 바로잡음
+- 도전 `GITHUB_STEP_SUMMARY`로 매트릭스 5개 조합 결과를 Actions 탭 Summary에 한 번에 표시
+
+→ [개념](./08-advanced/README.md) · [실습](./08-advanced/실습.md) · 실습 결과물: `.github/workflows/08-advanced.yml`
 
 ## 📝 정리 방식
 각 회차 폴더에는 다음 내용이 포함됩니다.

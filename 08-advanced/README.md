@@ -231,9 +231,33 @@ push (main/develop) 또는 수동 실행
   알려준다.
 - `GITHUB_STEP_SUMMARY`에 쓰는 step에 `if: always()`를 안 붙이면, 테스트가 실패했을 때 그 뒤 step이
   전부 skip되면서 요약도 안 남는다.
+- `git revert --no-edit HEAD`를 쓸 때 `HEAD`가 정말 되돌리려는 그 커밋인지 확인 없이 실행하면,
+  그 사이에 다른 목적의 커밋(예: 버그 수정과 무관한 설정 변경)이 끼어 있을 경우 **엉뚱한 커밋이
+  되돌아간다.** 커밋 해시를 직접 지정(`git revert <해시>`)하거나, 먼저 `git log --oneline`으로
+  확인하는 습관이 안전하다.
 
 ---
 
 ## 이번 회차 배운 점
 
-(실습을 진행하며 직접 채워보세요)
+- `strategy.matrix`에 축을 2개(`os`, `node-version`) 두면 조합 수만큼(6개) job이 자동 생성되고,
+  이름에도 매트릭스 값이 그대로 붙는다. `exclude`로 특정 조합(`macos-latest`+`18`)만 쏙 빼는 것도
+  간단했다.
+- `fail-fast`가 기본 `true`라는 걸 직접 눈으로 확인했다. 버그를 주입했더니 제일 먼저 실패에 도달한
+  `ubuntu-latest, 22`가 나머지 4개(다른 ubuntu 조합 포함)를 전부 `cancelled`시켰다 — 취소는
+  OS 기준이 아니라 "그 순간 아직 안 끝난 job이면 무조건"이라는 걸 실제 결과로 확인했다.
+  `fail-fast: false`로 바꾸니 같은 버그에도 5개 전부 끝까지 돌아서 `failure`로만 남았다.
+- `actions/cache`의 `cache-hit` 출력은 **정확히 일치하는 key를 찾았을 때만** `true`다. 락파일을
+  바꿔서 key가 달라지자 `restore-keys`로 예전 캐시가 부분 복원되긴 했지만 `cache-hit`은 `false`로
+  남았고, 그래서 `npm ci`가 다시 실행됐다 — 부분 복원을 완전 복원처럼 믿으면 안 되는 이유를
+  실제로 확인했다.
+- `actions/github-script`로 이슈를 자동 생성하려다 `RequestError [HttpError]: Resource not
+  accessible by integration` (403)을 실제로 겪었다. 원인은 최근 GitHub 리포지토리의 `GITHUB_TOKEN`
+  기본 권한이 읽기 전용이라는 것 — `notify-on-failure` job에 `permissions: issues: write`를
+  추가하고 나서야 이슈(`#5`)가 실제로 생성됐다.
+- 그 와중에 `git revert --no-edit HEAD`를 실수로 잘못 써서 버그 커밋이 아니라 방금 만든 권한 수정
+  커밋을 되돌려버렸다. `git log --oneline`으로 정확한 커밋 해시를 확인하고 `git revert <해시>`로
+  콕 집어 되돌려야 안전하다는 걸 실전에서 배웠다 — "일단 HEAD" 습관이 사고로 이어질 수 있다.
+- `GITHUB_STEP_SUMMARY`에 `if: always()`를 붙여 각 매트릭스 job이 자기 결과를 한 줄씩 남기게 했고,
+  브라우저 Actions 탭 Summary에서 5개 조합 결과가 한곳에 모여 보이는 걸 확인했다. `gh` CLI로는
+  이 내용을 직접 조회할 수 없어 브라우저 확인이 꼭 필요한 유일한 기능이었다.
