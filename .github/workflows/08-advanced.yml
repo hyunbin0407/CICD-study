@@ -50,8 +50,6 @@ jobs:
     needs: test
     if: failure()
     runs-on: ubuntu-latest
-    permissions:
-      issues: write
     steps:
       - name: 실패 이슈 자동 생성
         uses: actions/github-script@v7
