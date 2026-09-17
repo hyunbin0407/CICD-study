@@ -46,12 +46,15 @@ jobs:
       - name: 테스트 실행
         run: npm test
 
+      - name: 결과 요약 기록
+        if: always()
+        run: |
+          echo "- ${{ matrix.os }} / node ${{ matrix.node-version }}: ${{ job.status }}" >> "$GITHUB_STEP_SUMMARY"
+
   notify-on-failure:
     needs: test
     if: failure()
     runs-on: ubuntu-latest
-    permissions:
-      issues: write
     steps:
       - name: 실패 이슈 자동 생성
         uses: actions/github-script@v7
