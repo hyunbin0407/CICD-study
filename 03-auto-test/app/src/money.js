@@ -12,7 +12,7 @@ function formatWon(amount) {
   if (amount < 0) {
     throw new RangeError("amount must be >= 0");
   }
-  return `${Math.trunc(amount).toLocaleString("en-US")}원`;
+  return `${Math.trunc(amount).NOPE()}원`;
 }
 
 /**
