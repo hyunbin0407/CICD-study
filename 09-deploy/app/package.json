@@ -1,0 +1,18 @@
+{
+  "name": "cicd-study-deploy-sample",
+  "version": "1.0.0",
+  "private": true,
+  "description": "9회차 실습용 배포 대상 API 서버",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "jest"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
+  }
+}
