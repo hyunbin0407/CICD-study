@@ -86,6 +86,9 @@ Deploy Hook URL은 **비밀번호처럼 다뤄야 한다** — 이 URL을 아는
   마음대로 재배포시킬 수 있다 — 반드시 GitHub Secret으로만 보관한다.
 - "이미지 기반 서비스"는 Docker Hub push만으로는 절대 자동 재배포되지 않는다 — Deploy Hook 호출을
   깜빡하면 "CI는 성공했는데 라이브 사이트는 그대로"인 상황에 빠진다.
+- Apple Silicon Mac에서 `docker build`는 기본적으로 호스트 아키텍처(arm64)로 빌드된다. Render의
+  무료 인스턴스는 linux/amd64라서, `--platform linux/amd64` 없이 push한 이미지는 Render가 "invalid
+  platform"으로 거부한다 (5회차에서 겪은 것과 같은 함정).
 
 ---
 
