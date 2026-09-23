@@ -78,6 +78,41 @@ Deploy Hook URL은 **비밀번호처럼 다뤄야 한다** — 이 URL을 아는
 
 ---
 
+## 5. Part 2 — CI에 배포 자동화 넣기
+
+Part 1은 전부 손으로 했다: 로컬 빌드, 수동 push, Render 대시보드 클릭, `gh secret set`. Part 2는
+이 흐름을 워크플로우 하나로 묶는다.
+
+```
+push (main, 09-deploy/** 변경)
+        │
+        ▼
+   test        (npm ci → npm test)
+        │
+        ▼
+   docker-push (buildx → linux/amd64 빌드 → Docker Hub push, :latest + :<sha> 태그)
+        │
+        ▼
+   deploy      (curl -X POST Deploy Hook)
+```
+
+몇 가지 새로 나오는 포인트:
+
+- **`paths` 필터에 워크플로우 파일 자신도 넣어야 한다.** `.github/workflows/09-deploy.yml`은
+  `09-deploy/` 폴더 밖에 있는 파일이라, `paths: ["09-deploy/**"]`만 쓰면 이 워크플로우 파일을 처음
+  만들거나 고치는 push 자체가 조건에 안 맞아 실행되지 않는다. `paths`에 워크플로우 파일 경로도
+  같이 넣어야 한다.
+- **`github.sha`로 커밋별 이미지 태그를 남긴다.** `:latest`만 있으면 "지금 뭐가 배포돼 있는지"는
+  알아도 "그게 어느 커밋에서 만들어졌는지"는 알기 어렵다. `docker.io/.../cicd-study-deploy:<sha>`
+  태그를 같이 push해두면 나중에 문제가 생겼을 때 정확히 어느 커밋의 이미지인지 추적할 수 있다.
+- **`curl -f`(`--fail`)로 실패를 전파한다.** 기본 `curl`은 서버가 400/500을 응답해도 종료 코드는
+  `0`이라 워크플로우가 "성공"으로 잘못 기록된다. `-f`를 붙이면 HTTP 에러 응답일 때 `curl` 자체가
+  실패 종료 코드를 반환해서 그 step과 job이 정확히 `failure`로 기록된다.
+- **Deploy Hook URL은 로그에도 안 찍힌다.** `${{ secrets.RENDER_DEPLOY_HOOK }}`처럼 시크릿을 직접
+  `run:` 안에 써도, GitHub Actions가 로그에 그 값이 나타나는 걸 자동으로 `***`로 마스킹해준다.
+
+---
+
 ## 자주 하는 실수
 
 - Express 앱을 하드코딩된 포트(`3000` 고정)로만 열면 Render에서 응답이 안 온다 — 반드시
@@ -89,6 +124,11 @@ Deploy Hook URL은 **비밀번호처럼 다뤄야 한다** — 이 URL을 아는
 - Apple Silicon Mac에서 `docker build`는 기본적으로 호스트 아키텍처(arm64)로 빌드된다. Render의
   무료 인스턴스는 linux/amd64라서, `--platform linux/amd64` 없이 push한 이미지는 Render가 "invalid
   platform"으로 거부한다 (5회차에서 겪은 것과 같은 함정).
+- `paths` 필터에 워크플로우 파일 자기 자신의 경로를 빼먹으면, 그 워크플로우 파일을 만들거나 고치는
+  push 자체가 실행되지 않는 역설에 빠진다 — `.github/workflows/<파일명>.yml`도 `paths`에 포함해야
+  한다.
+- `curl`로 웹훅을 호출할 때 `-f`(`--fail`) 옵션을 안 쓰면, 상대 서버가 에러를 응답해도 워크플로우는
+  "성공"으로 끝나버린다 — 배포가 실패했는데 CI는 초록불인 상황이 된다.
 
 ---
 
