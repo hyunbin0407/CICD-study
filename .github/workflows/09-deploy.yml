@@ -63,6 +63,10 @@ jobs:
     needs: docker-push
     runs-on: ubuntu-latest
     steps:
+      - name: Render API 연결 확인 (디버그용)
+        run: |
+          curl -s -o /dev/null -w "HTTP %{http_code}, %{time_total}s\n" --max-time 10 https://api.render.com
+
       - name: Render Deploy Hook 호출
         run: |
           curl -sf --max-time 20 --retry 2 --retry-delay 3 -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
