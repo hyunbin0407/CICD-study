@@ -63,6 +63,15 @@ jobs:
     needs: docker-push
     runs-on: ubuntu-latest
     steps:
+      - name: Deploy Hook 값 형식 확인 (디버그용, 내용은 출력 안 함)
+        env:
+          HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: |
+          echo "길이: ${#HOOK}"
+          echo "https:// 시작: $( [[ "$HOOK" == https://* ]] && echo yes || echo no )"
+          echo "render.com 포함: $( [[ "$HOOK" == *render.com* ]] && echo yes || echo no )"
+          echo "공백/개행 포함: $( [[ "$HOOK" =~ [[:space:]] ]] && echo yes || echo no )"
+
       - name: Render API 연결 확인 (디버그용)
         run: |
           curl -s -o /dev/null -w "HTTP %{http_code}, %{time_total}s\n" --max-time 10 https://api.render.com
