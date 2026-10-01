@@ -65,4 +65,4 @@ jobs:
     steps:
       - name: Render Deploy Hook 호출
         run: |
-          curl -sf -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
+          curl -sf --max-time 20 --retry 2 --retry-delay 3 -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
