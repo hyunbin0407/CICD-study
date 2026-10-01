@@ -58,3 +58,11 @@ jobs:
             docker.io/gusqls0718/cicd-study-deploy:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  deploy:
+    needs: docker-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Render Deploy Hook 호출
+        run: |
+          curl -sf -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
